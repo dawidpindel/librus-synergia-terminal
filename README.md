@@ -9,7 +9,7 @@ Aplikacja działająca w terminalu, służąca do pobierania najważniejszych in
 Biblioteka [librus scraper](https://github.com/piotr-ginal/librus-scraper)
 ## Instalacja
 ```bash
-pip install -e .
+pip install librus_terminal
 ```
 ## Wygląd interfejsu
 ![interfejs](https://user-images.githubusercontent.com/70772418/197017415-7e059be5-fee1-44fa-9607-f2a9f4a5b7b6.png)
