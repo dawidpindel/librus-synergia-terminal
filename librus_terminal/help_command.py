@@ -38,6 +38,14 @@ Komendy:
                     - indeks - indeks wiadomosci którą chcemy odczytać.
 
     help - wyświetla tą wiadomosć
+
+    grades - pobiera i wyświetla oceny ucznia
+        Użycie:
+            login <arguments>
+                arguments:
+                    - --detailed - oceny będą wyświetlone ze szczegółami
+
+    abs - wyświetla nieobecności ucznia
 """
 
     print(message)

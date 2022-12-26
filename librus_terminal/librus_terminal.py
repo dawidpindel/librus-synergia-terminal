@@ -7,6 +7,7 @@ from . import messages_commands
 from . import other_commands
 from . import authorization_commands
 from . import help_command
+from . import grades_commands
 
 
 class LibrusTerminal():
@@ -20,7 +21,9 @@ class LibrusTerminal():
         "login": authorization_commands.login_command,
         "logout": authorization_commands.logout_command,
         "rmes": messages_commands.read_message_command,
-        "help": help_command.help_command
+        "help": help_command.help_command,
+        "abs": other_commands.absences_command,
+        "grades": grades_commands.grades_command
     }
 
     def __init__(self, session: LibrusSession) -> None:
