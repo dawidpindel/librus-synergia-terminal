@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="librus_terminal",
-    version="0.1.1",
+    version="0.2.1",
     author="Piotr Ginał",
     packages=["librus_terminal"],
     install_requires=[

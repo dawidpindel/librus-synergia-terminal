@@ -1,33 +1,18 @@
-from .librus_session import LibrusSession
-from .command_parsing import parse_command
-from .exceptions import ParsingException, TerminalAuthorizationException
-import re
+import typing
 
-from . import messages_commands
-from . import other_commands
-from . import authorization_commands
-from . import help_command
-from . import grades_commands
+from .command_parsing import parse_command
+from .commands import Command
+from .librus_session import LibrusSession
+from . import exceptions
 
 
 class LibrusTerminal():
 
     enable_color = True
-    commands = {
-        "gmes": messages_commands.get_messages_command,
-        "exit": other_commands.exit_command,
-        "cls": other_commands.clear_command,
-        "clear": other_commands.clear_command,
-        "login": authorization_commands.login_command,
-        "logout": authorization_commands.logout_command,
-        "rmes": messages_commands.read_message_command,
-        "help": help_command.help_command,
-        "abs": other_commands.absences_command,
-        "grades": grades_commands.grades_command
-    }
 
-    def __init__(self, session: LibrusSession) -> None:
+    def __init__(self, session: LibrusSession, commands: typing.Dict[str, Command]) -> None:
         self.session: LibrusSession = session
+        self.commands: typing.Dict[str, Command] = commands
 
     @property
     def _input_message(self) -> str:
@@ -36,7 +21,7 @@ class LibrusTerminal():
         try:
             self.session.check_if_expired()
 
-        except TerminalAuthorizationException as exception:
+        except exceptions.TerminalAuthorizationException as exception:
             logged_in = False
 
         attrs = ("logged in", "BLUE") if logged_in else ("not logged in", "RED")
@@ -78,7 +63,7 @@ class LibrusTerminal():
 
             try:
                 options, arguments = parse_command(command)
-            except ParsingException as exception:
+            except exceptions.ParsingException as exception:
                 print(str(exception), *exception.errors)
                 continue
 
@@ -93,27 +78,25 @@ class LibrusTerminal():
                 continue
 
             try:
-                result = self.commands[command](self.session, *options, **arguments)
+                result = self.commands[command].run_command([self.session, *options], arguments)
 
-            except TerminalAuthorizationException as exception:
+            except exceptions.TerminalAuthorizationException as exception:
                 print(exception.message_for_user)
 
-            except TypeError as exception:
-                error_message = str(exception)
+            except exceptions.NotEnoughArgumentsException as exception:
+                print(f"not enough options", ", ".join(exception.lacking), "are missing")
 
-                if "got an unexpected keyword argument" in error_message:
-                    print("nieznany argument:", "--" + error_message.split("'")[1])
+            except exceptions.InvalidArgumentType as exception:
+                print(f"invalid option type, expected {exception.expected_type.__name__}, got {exception.passed_type.__name__}")
 
-                elif "required positional argument" in error_message:
-                    print("nie podano wymaganych opcji")
+            except exceptions.TooManyArguments as exception:
+                print(f"too many options")
 
-                elif (match := re.match(r".+(\d+) positional argument but (\d+).+", error_message)) is not None:
-                    print("ta komenda wymaga {} opcji, a podano {}".format(
-                        int(match.groups()[0]) - 1,
-                        int(match.groups()[1]) - 1
-                    ))
-                else:
-                    raise exception
+            except exceptions.UnknownKeywordArgumenException as exception:
+                print("unknown argument:", exception.arg_name)
+
+            except exceptions.InvalidKeywordArgumentType as exception:
+                print(f"invalid argument type ({exception.arg_name}), expected {exception.expected_type.__name__}, got {exception.passed_type.__name__}")
 
             except KeyboardInterrupt as exception:
                 continue

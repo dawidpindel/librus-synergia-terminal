@@ -14,6 +14,11 @@ def _print_grade_detailed(grade: librus_scraper.grades.Grade, indentation: str, 
         sep=""
     )
 
+    for key in grade.additional:
+        print("\t{}- {}: {}".format(
+            indentation, key.replace('\n', ' '), grade.additional[key].replace('\n', ' ')
+        ))
+
 
 def _print_semester_grades(semester: librus_scraper.grades.Semester, semester_index: int, detailed: bool = False) -> None:
     print(f"\tSemester {semester_index}:", end=" " if not detailed else "\n")
